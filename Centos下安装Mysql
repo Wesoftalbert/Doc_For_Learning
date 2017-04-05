@@ -46,3 +46,6 @@
 
 经过上面几步修改了密码策略之后，我们就可以把密码修改得比较简单了，例如：123456
 修改密码为：mysql> SET PASSWORD = PASSWORD('123456');
+
+
+This is a test aa 
