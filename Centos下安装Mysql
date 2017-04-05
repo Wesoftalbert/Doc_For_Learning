@@ -48,4 +48,3 @@
 修改密码为：mysql> SET PASSWORD = PASSWORD('123456');
 
 
-This is a test aa 
