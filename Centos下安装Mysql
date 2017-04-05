@@ -1,3 +1,48 @@
-http://www.centoscn.com/mysql/2016/0626/7537.html
-由于之前在公司已经装好了一次，但是因为这次电脑带回家了，然后数据库的密码也忘记了，所以要重新安装。
-啊，说道这个问题，为真的觉得自己要死了。
+
+  由于之前在公司已经装好了一次，但是因为这次电脑带回家了，然后数据库的密码也忘记了，所以要重新安装。
+啊，说道这个问题，真的觉得自己要死了。这个问题最初起源于我们的一个bestcode的一个项目。刚刚开始老大为我们 写好了创建数据库的脚本，然后我们拿来用。因为要安装数据库，然后我们就去安装了。在这个过程中，遇到了一个问题，那就是安装mysql。我目前安装的是一个最新版的mysql：MySQL 5.7.17.
+安装的方法主要是使用yum在线安装，主要参考的文章是： http://www.centoscn.com/mysql/2016/0626/7537.html
+
+  安装完之后，竟然不能登录进去，即使我使用的是系统生成的零时密码，也不能登录成功，真的很操蛋。
+  
+  后来在网上找了很久很久之后，找到了另外一篇文章：http://www.jb51.net/article/103434.htm拯救了我，主要用到的语句是：
+  $ vi /etc/my.cnf
+  [mysqld]配置区域添加：
+  skip-grant-tables
+  $ service mysqld restart
+  上面的语句的意思是，编辑my.cnf 这个文件，然后添加一句话 skip-grant-tables，最后重启一下mysql。重启完之后，就可以进入数据库了，如下语句：
+  
+  $ /usr/local/mysql/bin/mysql -uroot 
+  mysql> update mysql.user set authentication_string=password('HBC3ntr1fy!') where user='root';
+  mysql> quit
+  登出 mysql，修改 my.cnf，去掉添加的 skip-grant-tables ，重启 mysqld 服务，使用新密码登录。
+  
+  从上面可以看出，我们的密码是设置得比较复杂的，这是密码策略的要求。下面就设置密码策略，使得密码可以用简单的数字123456.
+  
+
+  
+  
+  由于密码策略的要求，我们的密码设置不能过于简单，这个时候，可以改变他的默认策略(参考文章http://www.cnblogs.com/ivictor/p/5142809.html)：
+  
+ 
+  mysql> set global validate_password_policy=0;
+  Query OK, 0 rows affected (0.00 sec)
+  
+  mysql> set global validate_password_mixed_case_count=2;
+  Query OK, 0 rows affected (0.00 sec)
+  
+  mysql> SHOW VARIABLES LIKE 'validate_password%';
++--------------------------------------+-------+
+| Variable_name                        | Value |
++--------------------------------------+-------+
+| validate_password_dictionary_file    |       |
+| validate_password_length             | 6     |
+| validate_password_mixed_case_count   | 2     |
+| validate_password_number_count       | 1     |
+| validate_password_policy             | LOW   |
+| validate_password_special_char_count | 1     |
++--------------------------------------+-------+
+6 rows in set (0.00 sec)
+
+经过上面几步修改了密码策略之后，我们就可以把密码修改得比较简单了，例如：123456
+修改密码为：mysql> SET PASSWORD = PASSWORD('123456');
